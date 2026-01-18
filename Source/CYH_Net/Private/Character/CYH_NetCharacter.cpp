@@ -10,6 +10,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "State/NetPlayerState.h"
+#include "Components/WidgetComponent.h"
+#include "Widget/UI_DataLine.h"
+#include "Actor/PickupActor.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -20,7 +24,7 @@ ACYH_NetCharacter::ACYH_NetCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
+
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -50,9 +54,28 @@ ACYH_NetCharacter::ACYH_NetCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	NameWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("NamePlate"));
+	NameWidgetComponent->SetupAttachment(GetRootComponent());
+	NameWidgetComponent->SetRelativeLocation(FVector::UpVector * 100.0f);
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
+
+void ACYH_NetCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (UUserWidget* userWidget = NameWidgetComponent->GetWidget())
+	{
+		NameWidget = Cast<UUI_DataLine>(userWidget);
+		if (NameWidget.IsValid())
+		{
+			NameWidget->SetLabel(FText::FromString(TEXT("-")));
+		}
+	}
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -75,7 +98,7 @@ void ACYH_NetCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -85,6 +108,8 @@ void ACYH_NetCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACYH_NetCharacter::Look);
+
+		EnhancedInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &ACYH_NetCharacter::OnTryInteraction);
 	}
 	else
 	{
@@ -105,7 +130,7 @@ void ACYH_NetCharacter::Move(const FInputActionValue& Value)
 
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
+
 		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
@@ -127,3 +152,132 @@ void ACYH_NetCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
+
+void ACYH_NetCharacter::OnTryInteraction(const FInputActionValue& Value)
+{
+	Execute_TryInteraction(this);
+}
+
+void ACYH_NetCharacter::Server_AddCount_Implementation(int32 InCount)
+{
+	if (HasAuthority())
+	{
+		if (ANetPlayerState* playerState = GetPlayerState<ANetPlayerState>())
+		{
+			playerState->AddCount(InCount);
+		}
+	}
+}
+
+void ACYH_NetCharacter::Server_SetPlayerName_Implementation(const FString& InName)
+{
+	if (HasAuthority())
+	{
+		if (ANetPlayerState* playerState = GetPlayerState<ANetPlayerState>())
+		{
+			playerState->SetMyName(InName);
+		}
+	}
+}
+
+void ACYH_NetCharacter::Server_TryInteract_Implementation(AActor* InInteractionActor)
+{
+	if (InInteractionActor)
+	{
+		if (InInteractionActor->Implements<UInteractionInterface>())
+		{
+			IInteractionInterface::Execute_OnInteraction(InInteractionActor, this);
+		}
+	}
+}
+
+void ACYH_NetCharacter::UpdateNamePlate(const FString& InName)
+{
+	if (NameWidget.IsValid())
+	{
+		NameWidget->SetLabel(FText::FromString(InName));
+	}
+}
+
+void ACYH_NetCharacter::AddInteractionTarget_Implementation(AActor* InTarget)
+{
+	if (InTarget)
+	{
+		if (InTarget->Implements<UInteractionInterface>())
+		{
+			InteractionTargets.AddUnique(InTarget);
+		}
+
+		if (IsLocallyControlled())
+		{
+			if (APickupActor* pickupActor = Cast<APickupActor>(InTarget))
+			{
+				pickupActor->GetWidgetComponent()->SetVisibility(true);
+			}
+		}
+	}
+}
+
+void ACYH_NetCharacter::ClearInteractionTarget_Implementation(AActor* InTarget)
+{
+	if (InTarget)
+	{
+		if (InTarget->Implements<UInteractionInterface>())
+		{
+			InteractionTargets.RemoveSingle(InTarget);
+		}
+
+		if (IsLocallyControlled())
+		{
+			if (APickupActor* pickupActor = Cast<APickupActor>(InTarget))
+			{
+				pickupActor->GetWidgetComponent()->SetVisibility(false);
+			}
+		}
+	}
+}
+
+void ACYH_NetCharacter::TryInteraction_Implementation()
+{
+	if (IsLocallyControlled())
+	{
+		if (APlayerController* pc = Cast<APlayerController>(GetController()))
+		{
+			FVector cameraLocation;
+			FRotator cameraRotation;
+			pc->GetPlayerViewPoint(cameraLocation, cameraRotation);
+
+			FVector start = cameraLocation;
+			FVector end = start + (cameraRotation.Vector() * Distance);
+
+			FHitResult hit;
+			FCollisionQueryParams params;
+			params.AddIgnoredActor(this);
+
+			DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 2.f);
+
+			bool bHit = GetWorld()->LineTraceSingleByChannel(
+				hit,
+				start,
+				end,
+				ECC_Visibility,
+				params
+			);
+
+			if (bHit)
+			{
+				if (AActor* target = hit.GetActor())
+				{
+					if (target->Implements<UInteractionInterface>())
+					{
+						if (InteractionTargets.Contains(target))
+						{
+							Server_TryInteract(target);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+

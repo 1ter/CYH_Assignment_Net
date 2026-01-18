@@ -5,18 +5,21 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "Interface/InteractionInterface.h"
 #include "CYH_NetCharacter.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
+class UWidgetComponent;
 class UInputMappingContext;
 class UInputAction;
+class UUI_DataLine;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class ACYH_NetCharacter : public ACharacter
+class ACYH_NetCharacter : public ACharacter, public IInteractionInterface
 {
 	GENERATED_BODY()
 
@@ -47,16 +50,32 @@ class ACYH_NetCharacter : public ACharacter
 public:
 	ACYH_NetCharacter();
 	
+	UFUNCTION(Server, Reliable)
+	void Server_AddCount(int32 InCount);
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetPlayerName(const FString& InName);
+
+	UFUNCTION(Server, Reliable)
+	void Server_TryInteract(AActor* InInteractionActor);
+
+	void UpdateNamePlate(const FString& InName);
+
+	virtual void AddInteractionTarget_Implementation(AActor* InTarget) override;
+	virtual void ClearInteractionTarget_Implementation(AActor* InTarget) override;
+	virtual void TryInteraction_Implementation() override;
 
 protected:
+	virtual void BeginPlay() override;
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
 
+	void OnTryInteraction(const FInputActionValue& Value);
+			
 protected:
 
 	virtual void NotifyControllerChanged() override;
@@ -68,5 +87,21 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+protected:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UWidgetComponent> NameWidgetComponent = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	TWeakObjectPtr<UUI_DataLine> NameWidget = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UInputAction> IA_Interact = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	float Distance = 100.0f;
+
+private:
+	TArray<TWeakObjectPtr<AActor>> InteractionTargets;
 };
 
