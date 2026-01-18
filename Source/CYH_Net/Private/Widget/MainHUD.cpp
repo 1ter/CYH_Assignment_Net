@@ -26,23 +26,42 @@ void AMainHUD::BeginPlay()
 	}
 }
 
-UUI_PickupCount* AMainHUD::GetPickupCountWidget()
+void AMainHUD::UpdateMyInfo(const FString& InName, int32 InCount)
 {
 	if (MainWidget.IsValid())
 	{
-		return MainWidget->GetPickupCountWidget();
+		MainWidget->UpdateMyInfo(InName, InCount);
 	}
-
-	return nullptr;
 }
 
-UUI_Timer* AMainHUD::GetTimerWidget()
+void AMainHUD::UpdateOtherInfo(ANetPlayerState* InPlayerState, const FString& InName, int32 InCount)
 {
 	if (MainWidget.IsValid())
 	{
-		return MainWidget->GetTimerWidget();
+		MainWidget->UpdateOtherInfo(InPlayerState, InName, InCount);
 	}
-
-	return nullptr;
 }
 
+void AMainHUD::UpdateTime(int32 InTime)
+{
+	if (MainWidget.IsValid())
+	{
+		MainWidget->UpdateTime(InTime);
+	}
+}
+
+void AMainHUD::UpdateWinnerName(const FString& InName)
+{
+	if (MainWidget.IsValid())
+	{
+		MainWidget->UpdateWinnerName(InName);
+	}
+}
+
+void AMainHUD::ShowResult(bool bShow)
+{
+	if (MainWidget.IsValid())
+	{
+		MainWidget->ShowResult(bShow);
+	}
+}

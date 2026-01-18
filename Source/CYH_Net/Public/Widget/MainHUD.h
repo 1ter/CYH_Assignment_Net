@@ -8,8 +8,8 @@
 
 class UUserWidget;
 class UUI_Main;
-class UUI_PickupCount;
-class UUI_Timer;
+class ANetPlayerState;
+
 /**
  *
  */
@@ -19,8 +19,15 @@ class CYH_NET_API AMainHUD : public AHUD
 	GENERATED_BODY()
 
 public:
-	UUI_PickupCount* GetPickupCountWidget();
-	UUI_Timer* GetTimerWidget();
+	void UpdateMyInfo(const FString& InName, int32 InCount);
+
+	void UpdateOtherInfo(ANetPlayerState* InPlayerState, const FString& InName, int32 InCount);
+
+	void UpdateTime(int32 InTime);
+
+	void UpdateWinnerName(const FString& InName);
+
+	void ShowResult(bool bShow);
 
 protected:
 	virtual void BeginPlay() override;

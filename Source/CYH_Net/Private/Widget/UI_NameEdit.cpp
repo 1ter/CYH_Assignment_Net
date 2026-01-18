@@ -35,9 +35,7 @@ void UUI_NameEdit::NameCommitted(const FText& Text, ETextCommit::Type CommitMeth
 			{
 				PlayerCharacter = Cast<ACYH_NetCharacter>(pc->GetPawn());
 			}
-
 		}
-
 		if (PlayerCharacter.IsValid())
 		{
 			PlayerCharacter->Server_SetPlayerName(Text.ToString());

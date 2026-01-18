@@ -18,20 +18,16 @@ class CYH_NET_API UUI_PickupCount : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void BindPlayerState(ANetPlayerState* InPlayerState);
-
 	UFUNCTION()
-	void UpdatePickupCount(int32 InCount);
+	void UpdateInfo(const FString& InName, int32 InCount);
 
 protected:
 	virtual void NativeConstruct() override;
 
-	virtual void NativeDestruct() override;
-	
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> PickupCount = nullptr;
 
-	UPROPERTY()
-	TWeakObjectPtr<ANetPlayerState> NetPlayerState = nullptr;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> Name = nullptr;
 };

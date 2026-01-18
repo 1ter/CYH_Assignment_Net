@@ -64,7 +64,7 @@ void ANetGameMode::CheckGameOver()
 
 		ANetPlayerState* winner = GetWinnerPlayerState(bDraw);
 
-		NetGameState->SetbGameEnded(true);
+		NetGameState->SetGameEnded(true);
 
 		if (bDraw || !winner)
 		{

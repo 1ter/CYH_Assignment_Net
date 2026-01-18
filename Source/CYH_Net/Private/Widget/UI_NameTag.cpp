@@ -11,23 +11,10 @@ void UUI_NameTag::NativeConstruct()
 
 	if (APawn* pawn = GetOwningPlayerPawn())
 	{
-		NetPlayerState = pawn->GetPlayerState<ANetPlayerState>();
-		if (NetPlayerState.IsValid())
+		if (ANetPlayerState* playerState = pawn->GetPlayerState<ANetPlayerState>())
 		{
-			NetPlayerState->OnNameChanged.AddDynamic(this, &UUI_NameTag::UpdateName);
-
-			UpdateName(NetPlayerState->GetMyName());
+			UpdateName(playerState->GetMyName());
 		}
-	}
-}
-
-void UUI_NameTag::NativeDestruct()
-{
-	Super::NativeDestruct();
-
-	if (NetPlayerState.IsValid())
-	{
-		NetPlayerState->OnNameChanged.RemoveDynamic(this, &UUI_NameTag::UpdateName);
 	}
 }
 

@@ -8,34 +8,23 @@
 void UUI_PickupCount::NativeConstruct()
 {
 	Super::NativeConstruct();
-	UE_LOG(LogTemp, Warning, TEXT("[UI][Construct] PS=%s"),
-		*GetNameSafe(GetOwningPlayer() ? GetOwningPlayer()->PlayerState : nullptr));
-
-}
-
-void UUI_PickupCount::NativeDestruct()
-{
-	Super::NativeDestruct();
-
-	if (NetPlayerState.IsValid())
+	
+	if (APawn* pawn = GetOwningPlayerPawn())
 	{
-		NetPlayerState->OnCountChanged.RemoveDynamic(this, &UUI_PickupCount::UpdatePickupCount);
+		if (ANetPlayerState* playerState = pawn->GetPlayerState<ANetPlayerState>())
+		{
+			UpdateInfo(playerState->GetMyName(), playerState->GetPickupCount());
+		}
 	}
 }
 
-void UUI_PickupCount::BindPlayerState(ANetPlayerState* InPlayerState)
+void UUI_PickupCount::UpdateInfo(const FString& InName, int32 InCount)
 {
-	if (InPlayerState)
+	if (Name)
 	{
-		NetPlayerState = InPlayerState;
-		InPlayerState->OnCountChanged.AddDynamic(this, &UUI_PickupCount::UpdatePickupCount);
-
-		UpdatePickupCount(NetPlayerState->GetPickupCount());
+		Name->SetText(FText::FromString(InName));
 	}
-}
 
-void UUI_PickupCount::UpdatePickupCount(int32 InCount)
-{
 	if (PickupCount)
 	{
 		PickupCount->SetText(FText::AsNumber(InCount));

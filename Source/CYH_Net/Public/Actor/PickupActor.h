@@ -24,9 +24,16 @@ public:
 
 	inline UWidgetComponent* GetWidgetComponent() { return WidgetComponent; }
 
-private:
+
+protected:
 	virtual void BeginPlay() override;
 
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
+
+	UFUNCTION()
+	void OnRep_IsPickedUp();
+
+private:
 	UFUNCTION()
 	void OnPickupBeginOverlap(
 		UPrimitiveComponent* OverlappedComp,
@@ -57,5 +64,6 @@ protected:
 	TObjectPtr<UWidgetComponent> WidgetComponent = nullptr;
 
 private:
+	UPROPERTY(ReplicatedUsing = OnRep_IsPickedUp)
 	bool bIsPickedUp = false;
 };

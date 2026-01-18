@@ -65,25 +65,33 @@ ACYH_NetCharacter::ACYH_NetCharacter()
 void ACYH_NetCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (NameWidgetComponent)
+	{
+		if (UUI_NameTag* nameTag = Cast<UUI_NameTag>(NameWidgetComponent->GetUserWidgetObject()))
+		{
+			if (ANetPlayerState* playerState = GetPlayerState<ANetPlayerState>())
+			{
+				nameTag->UpdateName(playerState->GetMyName());
+			}
+		}
+	}
 }
 
-//void ACYH_NetCharacter::Tick(float DeltaSeconds)
-//{
-//	Super::Tick(DeltaSeconds);
-//
-//	if (IsLocallyControlled())
-//	{
-//		if (NameWidgetComponent)
-//		{
-//			if (APlayerController* pc = GetWorld()->GetFirstPlayerController())
-//			{
-//				FVector cameraFoward = pc->PlayerCameraManager->GetCameraRotation().Vector();
-//				FVector widgetFoward = cameraFoward * -1;
-//				NameWidgetComponent->SetWorldRotation(widgetFoward.Rotation());
-//			}
-//		}
-//	}
-//}
+void ACYH_NetCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (NameWidgetComponent)
+	{
+		if (APlayerController* pc = GetWorld()->GetFirstPlayerController())
+		{
+			FVector cameraFoward = pc->PlayerCameraManager->GetCameraRotation().Vector();
+			FVector widgetFoward = cameraFoward * -1;
+			NameWidgetComponent->SetWorldRotation(widgetFoward.Rotation());
+		}
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -92,7 +100,7 @@ void ACYH_NetCharacter::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
 
-	if (!IsLocallyControlled())	{ return; }
+	if (!IsLocallyControlled()) { return; }
 
 	UE_LOG(LogTemp, Warning, TEXT("[CHAR] PS Changed -> %s"),
 		*GetNameSafe(GetPlayerState()));
@@ -162,6 +170,17 @@ void ACYH_NetCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+void ACYH_NetCharacter::UpdateNameTag(const FString& InName)
+{
+	if (NameWidgetComponent)
+	{
+		if (UUI_NameTag* nametag = Cast<UUI_NameTag>(NameWidgetComponent->GetUserWidgetObject()))
+		{
+			nametag->UpdateName(InName);
+		}
+	}
+}
+
 void ACYH_NetCharacter::OnTryInteraction(const FInputActionValue& Value)
 {
 	Execute_TryInteraction(this);
@@ -169,18 +188,18 @@ void ACYH_NetCharacter::OnTryInteraction(const FInputActionValue& Value)
 
 void ACYH_NetCharacter::Server_AddCount_Implementation(int32 InCount)
 {
-		if (ANetPlayerState* playerState = GetPlayerState<ANetPlayerState>())
-		{
-			playerState->AddCount(InCount);
-		}
+	if (ANetPlayerState* playerState = GetPlayerState<ANetPlayerState>())
+	{
+		playerState->AddCount(InCount);
+	}
 }
 
 void ACYH_NetCharacter::Server_SetPlayerName_Implementation(const FString& InName)
 {
-		if (ANetPlayerState* playerState = GetPlayerState<ANetPlayerState>())
-		{
-			playerState->SetMyName(InName);
-		}
+	if (ANetPlayerState* playerState = GetPlayerState<ANetPlayerState>())
+	{
+		playerState->SetMyName(InName);
+	}
 }
 
 void ACYH_NetCharacter::Server_TryInteract_Implementation(AActor* InInteractionActor)
@@ -240,34 +259,34 @@ void ACYH_NetCharacter::TryInteraction_Implementation()
 		FVector forward = GetActorForwardVector();
 		FVector end = start + (forward * Distance);
 
-			FHitResult hit;
-			FCollisionQueryParams params;
-			params.AddIgnoredActor(this);
+		FHitResult hit;
+		FCollisionQueryParams params;
+		params.AddIgnoredActor(this);
 
-			DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 2.f);
+		DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 2.f);
 
-			bool bHit = GetWorld()->LineTraceSingleByChannel(
-				hit,
-				start,
-				end,
-				ECC_Visibility,
-				params
-			);
+		bool bHit = GetWorld()->LineTraceSingleByChannel(
+			hit,
+			start,
+			end,
+			ECC_Visibility,
+			params
+		);
 
-			if (bHit)
+		if (bHit)
+		{
+			if (AActor* target = hit.GetActor())
 			{
-				if (AActor* target = hit.GetActor())
+				if (target->Implements<UInteractionInterface>())
 				{
-					if (target->Implements<UInteractionInterface>())
+					if (InteractionTargets.Contains(target))
 					{
-						if (InteractionTargets.Contains(target))
-						{
-							Server_TryInteract(target);
-						}
+						Server_TryInteract(target);
 					}
 				}
 			}
-	
+		}
+
 	}
 }
 

@@ -6,12 +6,10 @@
 #include "GameFramework/GameState.h"
 #include "NetGameState.generated.h"
 
+class AMainHUD;
 /**
  *
  */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTimerChanged, int32, NewTime);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWinnerNameChanged, const FString&, NewName);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameEnded);
 
 UCLASS()
 class CYH_NET_API ANetGameState : public AGameState
@@ -19,24 +17,23 @@ class CYH_NET_API ANetGameState : public AGameState
 	GENERATED_BODY()
 
 public:
-	ANetGameState();
-
-	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
-
 	inline int32 GetRemainingTime() const { return RemainingTime; }
 	inline void SetRemainingTime(int32 InTime)
 	{
-		RemainingTime = InTime;
-		OnTimerChanged.Broadcast(RemainingTime);
+		if (HasAuthority())
+		{
+			RemainingTime = InTime;
+			OnRep_RemainingTime();
+		}
 	}
 
 	inline bool GetIsGameEnded() const { return bGameEnded; }
-	inline void SetbGameEnded(bool bInEnded)
+	inline void SetGameEnded(bool bInEnded)
 	{
 		if (HasAuthority())
 		{
 			bGameEnded = bInEnded;
-			OnGameEnded.Broadcast();
+			OnRep_GameEnded();
 		}
 	}
 
@@ -46,33 +43,32 @@ public:
 		if (HasAuthority())
 		{
 			WinnerName = InName;
-			OnWinnerNameChanged.Broadcast(WinnerName);
+			OnRep_WinnerName();
 		}
 	}
+
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
 
 protected:
 	UFUNCTION()
 	void OnRep_RemainingTime();
 	UFUNCTION()
-	void OnRep_bGameEnded();
+	void OnRep_GameEnded();
 	UFUNCTION()
 	void OnRep_WinnerName();
 
-public:
-	UPROPERTY()
-	FOnTimerChanged OnTimerChanged;
-	UPROPERTY()
-	FOnGameEnded OnGameEnded;
-	UPROPERTY()
-	FOnWinnerNameChanged OnWinnerNameChanged;
-
 protected:
-	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_RemainingTime)
+	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_RemainingTime)
 	int32 RemainingTime = 60;
 
-	UPROPERTY(ReplicatedUsing = OnRep_bGameEnded)
+	UPROPERTY(ReplicatedUsing = OnRep_GameEnded)
 	bool bGameEnded = false;
 
 	UPROPERTY(ReplicatedUsing = OnRep_WinnerName)
 	FString WinnerName;
+
+	TWeakObjectPtr<AMainHUD> MainHUD = nullptr;
 };

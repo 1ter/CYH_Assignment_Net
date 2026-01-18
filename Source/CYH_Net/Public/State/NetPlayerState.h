@@ -9,8 +9,6 @@
 /**
  * 
  */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCountChanged, int32, NewCount);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNameChanged, const FString&, NewName);
 
 UCLASS()
 class CYH_NET_API ANetPlayerState : public APlayerState
@@ -24,12 +22,12 @@ public:
 	UFUNCTION()
 	void SetMyName(const FString& InName);
 
+	void UpdateHUD();
+
 	inline int32 GetPickupCount() const { return PickupCount; }
-	inline FString GetMyName() const { return MyName; }
+	inline const FString& GetMyName() const { return MyName; }
 
 protected:
-	virtual void BeginPlay() override;
-
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
 
 	UFUNCTION()
@@ -38,16 +36,10 @@ protected:
 	UFUNCTION()
 	void OnRep_MyName();
 
-public:
-	UPROPERTY()
-	FOnCountChanged OnCountChanged;
-	UPROPERTY()
-	FOnNameChanged OnNameChanged;
-
 private:
-	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_PickupCount)
+	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_PickupCount)
 	int32 PickupCount = 0;
 
-	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_MyName)
+	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_MyName)
 	FString MyName;
 };

@@ -14,28 +14,15 @@ void UUI_Result::NativeConstruct()
 
 	if (UWorld* world = GetWorld())
 	{
-		NetGameState = Cast<ANetGameState>(world->GetGameState());
-		if (NetGameState.IsValid())
+		if (ANetGameState* gamestate = Cast<ANetGameState>(world->GetGameState()))
 		{
-			NetGameState->OnWinnerNameChanged.AddDynamic(this, &UUI_Result::UpdateWinnerName);
-			NetGameState->OnGameEnded.AddDynamic(this, &UUI_Result::OnGameEnded);
+			UpdateWinnerName(gamestate->GetWinnerName());
 
-			UpdateWinnerName(NetGameState->GetWinnerName());
+
+			ShowResult(gamestate->GetIsGameEnded());
 		}
 	}
 }
-
-void UUI_Result::NativeDestruct()
-{
-	Super::NativeDestruct();
-
-	if (NetGameState.IsValid())
-	{
-		NetGameState->OnWinnerNameChanged.RemoveDynamic(this, &UUI_Result::UpdateWinnerName);
-		NetGameState->OnGameEnded.RemoveDynamic(this, &UUI_Result::OnGameEnded);
-	}
-}
-
 void UUI_Result::UpdateWinnerName(const FString& InName)
 {
 	if (WinnerName)
@@ -44,15 +31,9 @@ void UUI_Result::UpdateWinnerName(const FString& InName)
 	}
 }
 
-void UUI_Result::OnGameEnded()
+void UUI_Result::ShowResult(bool bShow)
 {
-	SetVisibility(ESlateVisibility::HitTestInvisible);
-
-	if (NetGameState.IsValid())
-	{
-		UpdateWinnerName(NetGameState->GetWinnerName());
-	}
-
+	SetVisibility(bShow ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Hidden);
 }
 
 

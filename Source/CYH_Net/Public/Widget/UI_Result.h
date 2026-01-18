@@ -7,7 +7,7 @@
 #include "UI_Result.generated.h"
 
 class UTextBlock;
-class ANetGameState;
+
 /**
  * 
  */
@@ -17,23 +17,16 @@ class CYH_NET_API UUI_Result : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UFUNCTION()
+
 	void UpdateWinnerName(const FString& InName);
 
-	UFUNCTION()
-	void OnGameEnded();
+	void ShowResult(bool bShow);
 
 
 protected:
 	virtual void NativeConstruct() override;
 
-	virtual void NativeDestruct() override;
-
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> WinnerName = nullptr;
-
-	UPROPERTY()
-	TWeakObjectPtr<ANetGameState> NetGameState = nullptr;
-	
 };

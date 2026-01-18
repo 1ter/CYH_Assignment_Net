@@ -23,12 +23,7 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 
-	virtual void NativeDestruct() override;
-
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> Name = nullptr;
-
-	UPROPERTY()
-	TWeakObjectPtr<ANetPlayerState> NetPlayerState = nullptr;
+	TObjectPtr<UTextBlock> NameTag = nullptr;
 };

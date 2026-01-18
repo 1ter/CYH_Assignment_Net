@@ -3,9 +3,16 @@
 
 #include "State/NetGameState.h"
 #include "Net/UnrealNetwork.h"
+#include "Widget/MainHUD.h"
 
-ANetGameState::ANetGameState()
+void ANetGameState::BeginPlay()
 {
+	Super::BeginPlay();
+
+	if (APlayerController* pc = GetWorld()->GetFirstPlayerController())
+	{
+		MainHUD = pc->GetHUD<AMainHUD>();
+	}
 }
 
 void ANetGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -19,15 +26,24 @@ void ANetGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 
 void ANetGameState::OnRep_RemainingTime()
 {
-	OnTimerChanged.Broadcast(RemainingTime);
+	if (MainHUD.IsValid())
+	{
+		MainHUD->UpdateTime(RemainingTime);
+	}
 }
 
-void ANetGameState::OnRep_bGameEnded()
+void ANetGameState::OnRep_GameEnded()
 {
-	OnGameEnded.Broadcast();
+	if (MainHUD.IsValid())
+	{
+		MainHUD->ShowResult(bGameEnded);
+	}
 }
 
 void ANetGameState::OnRep_WinnerName()
 {
-	OnWinnerNameChanged.Broadcast(WinnerName);
+	if (MainHUD.IsValid())
+	{
+		MainHUD->UpdateWinnerName(WinnerName);
+	}
 }

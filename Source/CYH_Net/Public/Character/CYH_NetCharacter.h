@@ -63,9 +63,12 @@ public:
 	virtual void ClearInteractionTarget_Implementation(AActor* InTarget) override;
 	virtual void TryInteraction_Implementation() override;
 
+	void UpdateNameTag(const FString& InName);
+
 protected:
 	virtual void BeginPlay() override;
-	//virtual void Tick(float DeltaSeconds) override;
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -76,7 +79,6 @@ protected:
 	void OnTryInteraction(const FInputActionValue& Value);
 			
 protected:
-
 	virtual void NotifyControllerChanged() override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

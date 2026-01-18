@@ -6,6 +6,7 @@
 #include "Components/WidgetComponent.h"
 #include "Character/CYH_NetCharacter.h"
 #include "State/NetPlayerState.h"
+#include "Net/UnrealNetwork.h"
 
 
 APickupActor::APickupActor()
@@ -48,7 +49,21 @@ void APickupActor::BeginPlay()
 		InteractionOverlap->OnComponentBeginOverlap.AddDynamic(this, &APickupActor::OnPickupBeginOverlap);
 		InteractionOverlap->OnComponentEndOverlap.AddDynamic(this, &APickupActor::OnPickupEndOverlap);
 	}
+}
 
+void APickupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(APickupActor, bIsPickedUp);
+}
+
+void APickupActor::OnRep_IsPickedUp()
+{
+	if (bIsPickedUp && WidgetComponent)
+	{
+		WidgetComponent->SetVisibility(false);
+	}
 }
 
 void APickupActor::OnPickupBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -76,17 +91,20 @@ void APickupActor::OnPickupEndOverlap(UPrimitiveComponent* OverlappedComp, AActo
 
 void APickupActor::OnInteraction_Implementation(AActor* InInteractionActor)
 {
-	if (!bIsPickedUp)
+	if (HasAuthority())
 	{
-		if (ACYH_NetCharacter* character = Cast<ACYH_NetCharacter>(InInteractionActor))
+		if (!bIsPickedUp)
 		{
-			if (ANetPlayerState* netPlayerState = Cast<ANetPlayerState>(character->GetPlayerState()))
+			if (ACYH_NetCharacter* character = Cast<ACYH_NetCharacter>(InInteractionActor))
 			{
-				bIsPickedUp = true;
+				if (ANetPlayerState* netPlayerState = Cast<ANetPlayerState>(character->GetPlayerState()))
+				{
+					bIsPickedUp = true;
 
-				netPlayerState->AddCount(1);
+					netPlayerState->AddCount(1);
 
-				Destroy();
+					Destroy();
+				}
 			}
 		}
 	}

@@ -26,7 +26,7 @@ private:
 	void NameCommitted(const FText& Text, ETextCommit::Type CommitMethod);
 
 protected:
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UEditableTextBox> NameInput = nullptr;
 
 private:

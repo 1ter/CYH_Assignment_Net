@@ -11,23 +11,10 @@ void UUI_Timer::NativeConstruct()
 
 	if (UWorld* world = GetWorld())
 	{
-		NetGameState = Cast<ANetGameState>(world->GetGameState());
-		if (NetGameState.IsValid())
+		if (ANetGameState* gameState = Cast<ANetGameState>(world->GetGameState()))
 		{
-			NetGameState->OnTimerChanged.AddDynamic(this, &UUI_Timer::UpdateTime);
-
-			UpdateTime(NetGameState->GetRemainingTime());
+			UpdateTime(gameState->GetRemainingTime());
 		}
-	}
-}
-
-void UUI_Timer::NativeDestruct()
-{
-	Super::NativeDestruct();
-
-	if (NetGameState.IsValid())
-	{
-		NetGameState->OnTimerChanged.RemoveDynamic(this, &UUI_Timer::UpdateTime);
 	}
 }
 

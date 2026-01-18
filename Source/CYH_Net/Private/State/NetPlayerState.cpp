@@ -3,17 +3,8 @@
 
 #include "State/NetPlayerState.h"
 #include "Net/UnrealNetwork.h"
-
-void ANetPlayerState::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (HasAuthority())
-	{
-		PickupCount = 0;
-		OnCountChanged.Broadcast(PickupCount);
-	}
-}
+#include "Widget/MainHUD.h"
+#include "Character/CYH_NetCharacter.h"
 
 void ANetPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -29,9 +20,12 @@ void ANetPlayerState::AddCount(int32 InCount)
 	{
 		PickupCount += InCount;
 
-		UE_LOG(LogTemp, Warning, TEXT("[SERVER] AddCount -> %d"), PickupCount);
 
-		OnCountChanged.Broadcast(PickupCount);
+		UE_LOG(LogTemp, Warning, TEXT("[SERVER] AddCount | PS=%s | Value=%d"),
+			*GetNameSafe(this),
+			PickupCount);
+
+		OnRep_PickupCount();
 	}
 }
 
@@ -48,19 +42,35 @@ void ANetPlayerState::SetMyName(const FString& InName)
 			MyName = InName;
 		}
 
-		OnNameChanged.Broadcast(MyName);
+		OnRep_MyName();
+	}
+}
+
+void ANetPlayerState::UpdateHUD()
+{
+	APlayerController* pc = GetWorld()->GetFirstPlayerController();
+	if (pc && pc->GetHUD<AMainHUD>())
+	{
+		if (AMainHUD* mainHUD = pc->GetHUD<AMainHUD>())
+		{
+			if (this == pc->PlayerState)
+			{
+				mainHUD->UpdateMyInfo(GetMyName(), PickupCount);
+			}
+			else
+			{
+				mainHUD->UpdateOtherInfo(this, GetMyName(), PickupCount);
+			}
+		}
 	}
 }
 
 void ANetPlayerState::OnRep_PickupCount()
 {
-	UE_LOG(LogTemp, Warning, TEXT("[CLIENT] OnRep -> %d"), PickupCount);
-
-
-	OnCountChanged.Broadcast(PickupCount);
+	UpdateHUD();
 }
 
 void ANetPlayerState::OnRep_MyName()
 {
-	OnNameChanged.Broadcast(MyName);
+	UpdateHUD();
 }
