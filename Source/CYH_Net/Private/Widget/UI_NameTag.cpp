@@ -20,9 +20,9 @@ void UUI_NameTag::NativeConstruct()
 
 void UUI_NameTag::UpdateName(const FString& InName)
 {
-	if (Name)
+	if (NameTag)
 	{
-		Name->SetText(FText::FromString(InName));
+		NameTag->SetText(FText::FromString(InName));
 	}
 }
 

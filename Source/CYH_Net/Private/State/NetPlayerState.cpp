@@ -68,9 +68,19 @@ void ANetPlayerState::UpdateHUD()
 void ANetPlayerState::OnRep_PickupCount()
 {
 	UpdateHUD();
+	UpdateNameTag();
 }
 
 void ANetPlayerState::OnRep_MyName()
 {
 	UpdateHUD();
+	UpdateNameTag();
+}
+
+void ANetPlayerState::UpdateNameTag()
+{
+	if (ACYH_NetCharacter* character = Cast<ACYH_NetCharacter>(GetPawn()))
+	{
+		character->UpdateNameTag(MyName);
+	}
 }

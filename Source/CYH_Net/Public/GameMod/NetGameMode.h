@@ -8,7 +8,7 @@
 
 class ANetGameState;
 class ANetPlayerState;
-
+class ASpawnBox;
 /**
  * 
  */
@@ -16,6 +16,9 @@ UCLASS()
 class CYH_NET_API ANetGameMode : public AGameMode
 {
 	GENERATED_BODY()
+
+public:
+	ANetGameMode();
 
 protected:
 	virtual void BeginPlay() override;
@@ -25,6 +28,8 @@ protected:
 	void UpdateTimer();
 
 	void CheckGameOver();
+
+	void SpawnPickupItem();
 
 	ANetPlayerState* GetWinnerPlayerState(bool& bOutDraw);
 
@@ -37,6 +42,14 @@ protected:
 
 	FTimerHandle GameTimerHandle;
 
+	FTimerHandle SpawnTimerHandle;
+
 protected:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> PickupItemClass = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<ASpawnBox> SpawnBox = nullptr;
+
 	TWeakObjectPtr<ANetGameState> NetGameState = nullptr;
 };

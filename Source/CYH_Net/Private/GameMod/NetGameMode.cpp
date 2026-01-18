@@ -4,6 +4,14 @@
 #include "GameMod/NetGameMode.h"
 #include "State/NetGameState.h"
 #include "State/NetPlayerState.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Actor/PickupActor.h"
+#include "Actor/SpawnBox.h"
+
+ANetGameMode::ANetGameMode()
+{
+
+}
 
 void ANetGameMode::BeginPlay()
 {
@@ -15,6 +23,17 @@ void ANetGameMode::BeginPlay()
 		NetGameState->SetRemainingTime(GameDuration);
 
 		StartGameTimer();
+	}
+
+	if (HasAuthority())
+	{
+		GetWorldTimerManager().SetTimer(
+			SpawnTimerHandle,
+			this,
+			&ANetGameMode::SpawnPickupItem,
+			3.0f,
+			true
+		);
 	}
 }
 
@@ -77,6 +96,33 @@ void ANetGameMode::CheckGameOver()
 	}
 }
 
+void ANetGameMode::SpawnPickupItem()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Spawn!")); 
+	if (HasAuthority())
+	{
+		if (PickupItemClass && SpawnBox)
+		{
+			if (SpawnBox = SpawnBox->FindComponentByClass<UBoxComponent>)
+
+			FVector spawnLocation = UKismetMathLibrary::RandomPointInBoundingBox(
+				SpawnBox->GetComponentLocation(),
+				SpawnBox->GetScaledBoxExtent()
+			);
+
+			FActorSpawnParameters spawnpParams;
+			spawnpParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+			GetWorld()->SpawnActor<APickupActor>(
+				PickupItemClass,
+				spawnLocation,
+				FRotator::ZeroRotator,
+				spawnpParams
+			);
+		}
+	}
+}
+
 ANetPlayerState* ANetGameMode::GetWinnerPlayerState(bool& bOutDraw)
 {
 	bOutDraw = false;
@@ -94,7 +140,7 @@ ANetPlayerState* ANetGameMode::GetWinnerPlayerState(bool& bOutDraw)
 		{
 			if (ANetPlayerState* netPlayerState = Cast<ANetPlayerState>(playerState))
 			{
-				int32 currentCount = netPlayerState->GetPickupCount(); 
+				int32 currentCount = netPlayerState->GetPickupCount();
 
 				if (currentCount > bestCount)
 				{
@@ -113,3 +159,4 @@ ANetPlayerState* ANetGameMode::GetWinnerPlayerState(bool& bOutDraw)
 
 	return bOutDraw ? nullptr : winner;
 }
+

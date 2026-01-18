@@ -36,6 +36,8 @@ protected:
 	UFUNCTION()
 	void OnRep_MyName();
 
+	void UpdateNameTag();
+
 private:
 	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_PickupCount)
 	int32 PickupCount = 0;
