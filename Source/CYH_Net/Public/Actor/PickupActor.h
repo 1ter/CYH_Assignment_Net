@@ -8,7 +8,7 @@
 #include "PickupActor.generated.h"
 
 class USphereComponent;
-class USkeletalMeshComponent;
+class UStaticMeshComponent;
 class UWidgetComponent;
 
 UCLASS()
@@ -43,8 +43,6 @@ private:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex);
 
-
-
 protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USphereComponent> Collision = nullptr;
@@ -53,7 +51,7 @@ protected:
 	TObjectPtr<USphereComponent> InteractionOverlap = nullptr;
 	
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<USkeletalMeshComponent> Mesh = nullptr;
+	TObjectPtr<UStaticMeshComponent> Mesh = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UWidgetComponent> WidgetComponent = nullptr;

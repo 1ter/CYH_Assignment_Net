@@ -12,8 +12,6 @@ class ANetPlayerState;
 /**
  * 
  */
-
-
 UCLASS()
 class CYH_NET_API ANetGameMode : public AGameMode
 {
@@ -31,10 +29,10 @@ protected:
 	ANetPlayerState* GetWinnerPlayerState(bool& bOutDraw);
 
 protected:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	int32 GameDuration = 60;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	float TimerInterval = 1.0f;
 
 	FTimerHandle GameTimerHandle;

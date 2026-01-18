@@ -4,26 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "UI_Result.generated.h"
+#include "UI_NameTag.generated.h"
 
 class UTextBlock;
-class ANetGameState;
+class ANetPlayerState;
 /**
  * 
  */
 UCLASS()
-class CYH_NET_API UUI_Result : public UUserWidget
+class CYH_NET_API UUI_NameTag : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
 	UFUNCTION()
-	void UpdateWinnerName(const FString& InName);
-
-	UFUNCTION()
-	void OnGameEnded();
-
-
+    void UpdateName(const FString& InName);
+	
 protected:
 	virtual void NativeConstruct() override;
 
@@ -31,9 +27,8 @@ protected:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> WinnerName = nullptr;
+	TObjectPtr<UTextBlock> Name = nullptr;
 
 	UPROPERTY()
-	TWeakObjectPtr<ANetGameState> NetGameState = nullptr;
-	
+	TWeakObjectPtr<ANetPlayerState> NetPlayerState = nullptr;
 };

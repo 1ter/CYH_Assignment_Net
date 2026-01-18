@@ -11,20 +11,25 @@
 APickupActor::APickupActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	bReplicates = true;
 
 	Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
 	SetRootComponent(Collision);
 	Collision->InitSphereRadius(20.0f);
 	Collision->SetCollisionProfileName(TEXT("BlockAllDynamic"));
 	Collision->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	Collision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	Collision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 
 	InteractionOverlap = CreateDefaultSubobject<USphereComponent>(TEXT("Overlap"));
 	InteractionOverlap->SetupAttachment(Collision);
 	InteractionOverlap->InitSphereRadius(100.0f);
-	InteractionOverlap->SetCollisionProfileName(TEXT("NoCollision"));
+	InteractionOverlap->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	InteractionOverlap->SetCollisionObjectType(ECC_WorldDynamic);
+	InteractionOverlap->SetCollisionResponseToAllChannels(ECR_Ignore);
+	InteractionOverlap->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	InteractionOverlap->SetGenerateOverlapEvents(true);
 
-	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(Collision);
 	Mesh->SetCollisionProfileName(TEXT("NoCollision"));
 
@@ -48,6 +53,7 @@ void APickupActor::BeginPlay()
 
 void APickupActor::OnPickupBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+
 	if (!bIsPickedUp)
 	{
 		if (OtherActor && OtherActor->Implements<UInteractionInterface>())
@@ -70,20 +76,17 @@ void APickupActor::OnPickupEndOverlap(UPrimitiveComponent* OverlappedComp, AActo
 
 void APickupActor::OnInteraction_Implementation(AActor* InInteractionActor)
 {
-	if (HasAuthority())
+	if (!bIsPickedUp)
 	{
-		if (!bIsPickedUp)
+		if (ACYH_NetCharacter* character = Cast<ACYH_NetCharacter>(InInteractionActor))
 		{
-			if (ACYH_NetCharacter* character = Cast<ACYH_NetCharacter>(InInteractionActor))
+			if (ANetPlayerState* netPlayerState = Cast<ANetPlayerState>(character->GetPlayerState()))
 			{
-				if (ANetPlayerState* netPlayerState = Cast<ANetPlayerState>(character->GetPlayerState()))
-				{
-					bIsPickedUp = true;
+				bIsPickedUp = true;
 
-					netPlayerState->AddCount(1);
+				netPlayerState->AddCount(1);
 
-					Destroy();
-				}
+				Destroy();
 			}
 		}
 	}

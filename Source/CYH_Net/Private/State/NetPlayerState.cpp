@@ -4,11 +4,32 @@
 #include "State/NetPlayerState.h"
 #include "Net/UnrealNetwork.h"
 
+void ANetPlayerState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (HasAuthority())
+	{
+		PickupCount = 0;
+		OnCountChanged.Broadcast(PickupCount);
+	}
+}
+
+void ANetPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ANetPlayerState, PickupCount);
+	DOREPLIFETIME(ANetPlayerState, MyName);
+}
+
 void ANetPlayerState::AddCount(int32 InCount)
 {
 	if (HasAuthority())
 	{
 		PickupCount += InCount;
+
+		UE_LOG(LogTemp, Warning, TEXT("[SERVER] AddCount -> %d"), PickupCount);
 
 		OnCountChanged.Broadcast(PickupCount);
 	}
@@ -31,16 +52,11 @@ void ANetPlayerState::SetMyName(const FString& InName)
 	}
 }
 
-void ANetPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME(ANetPlayerState, PickupCount);
-	DOREPLIFETIME(ANetPlayerState, MyName);
-}
-
 void ANetPlayerState::OnRep_PickupCount()
 {
+	UE_LOG(LogTemp, Warning, TEXT("[CLIENT] OnRep -> %d"), PickupCount);
+
+
 	OnCountChanged.Broadcast(PickupCount);
 }
 

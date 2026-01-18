@@ -2,8 +2,9 @@
 
 
 #include "Widget/UI_Result.h"
-#include "Widget/UI_DataLine.h"
+#include "Widget/UI_NameTag.h"
 #include "State/NetGameState.h"
+#include "Components/TextBlock.h"
 
 void UUI_Result::NativeConstruct()
 {
@@ -37,7 +38,10 @@ void UUI_Result::NativeDestruct()
 
 void UUI_Result::UpdateWinnerName(const FString& InName)
 {
-	WinnerName->SetLabel(FText::FromString(InName));
+	if (WinnerName)
+	{ 
+		WinnerName->SetText(FText::FromString(InName));
+	}
 }
 
 void UUI_Result::OnGameEnded()

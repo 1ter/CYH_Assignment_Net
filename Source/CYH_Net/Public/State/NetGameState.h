@@ -3,18 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameStateBase.h"
+#include "GameFramework/GameState.h"
 #include "NetGameState.generated.h"
 
 /**
- * 
+ *
  */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTimerChanged, int32, NewTime);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWinnerNameChanged, const FString&, NewName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameEnded);
 
 UCLASS()
-class CYH_NET_API ANetGameState : public AGameStateBase
+class CYH_NET_API ANetGameState : public AGameState
 {
 	GENERATED_BODY()
 
@@ -24,29 +24,33 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
 
 	inline int32 GetRemainingTime() const { return RemainingTime; }
-	inline void SetRemainingTime(int32 InTime) 
+	inline void SetRemainingTime(int32 InTime)
 	{
-		RemainingTime = InTime; 
+		RemainingTime = InTime;
 		OnTimerChanged.Broadcast(RemainingTime);
 	}
 
 	inline bool GetIsGameEnded() const { return bGameEnded; }
-	inline void SetbGameEnded(bool bInEnded) 
+	inline void SetbGameEnded(bool bInEnded)
 	{
-		bGameEnded = bInEnded; 
-		OnGameEnded.Broadcast();
+		if (HasAuthority())
+		{
+			bGameEnded = bInEnded;
+			OnGameEnded.Broadcast();
+		}
 	}
 
 	inline const FString& GetWinnerName() const { return WinnerName; }
 	inline void SetWinnerName(const FString& InName)
 	{
-		WinnerName = InName;
-		OnWinnerNameChanged.Broadcast(WinnerName);
+		if (HasAuthority())
+		{
+			WinnerName = InName;
+			OnWinnerNameChanged.Broadcast(WinnerName);
+		}
 	}
 
 protected:
-	virtual void BeginPlay() override;
-
 	UFUNCTION()
 	void OnRep_RemainingTime();
 	UFUNCTION()
@@ -55,8 +59,11 @@ protected:
 	void OnRep_WinnerName();
 
 public:
+	UPROPERTY()
 	FOnTimerChanged OnTimerChanged;
+	UPROPERTY()
 	FOnGameEnded OnGameEnded;
+	UPROPERTY()
 	FOnWinnerNameChanged OnWinnerNameChanged;
 
 protected:

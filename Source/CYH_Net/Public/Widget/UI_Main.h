@@ -6,11 +6,11 @@
 #include "Blueprint/UserWidget.h"
 #include "UI_Main.generated.h"
 
-class UUI_DataLine;
-class UEditableTextBox;
-class ANetGameState;
-class ANetPlayerState;
-
+class UUI_Timer;
+class UUI_PickupCount;
+class UUI_NameTag;
+class UUI_Result;
+class UUI_NameEdit;
 /**
  * 
  */
@@ -20,15 +20,8 @@ class CYH_NET_API UUI_Main : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UFUNCTION()
-	void UpdateName(const FString& InName);
-
-	UFUNCTION()
-	void UpdatePickupCount(int32 InCount);
-
-	UFUNCTION()
-	void UpdateTime(int32 InTime);
-
+	inline UUI_Timer* GetTimerWidget() { return TimeWidget; }
+	inline UUI_PickupCount* GetPickupCountWidget() { return PickupCountWidget; }
 
 protected:
 	virtual void NativeConstruct() override;
@@ -37,20 +30,14 @@ protected:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UUI_DataLine> Name = nullptr;
+	TObjectPtr<UUI_Timer> TimeWidget = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UUI_DataLine> PickupCount = nullptr;
+	TObjectPtr<UUI_PickupCount> PickupCountWidget = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UUI_DataLine> Timer = nullptr;
+	TObjectPtr<UUI_Result> ResultWidget = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UEditableTextBox> NameInput = nullptr;
-
-	UPROPERTY()
-	TWeakObjectPtr<ANetGameState> NetGameState = nullptr;
-
-	UPROPERTY()
-	TWeakObjectPtr<ANetPlayerState> NetPlayerState = nullptr;
+	TObjectPtr<UUI_NameEdit> NameEditWidget = nullptr;
 };

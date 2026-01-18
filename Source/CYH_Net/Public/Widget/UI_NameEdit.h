@@ -19,9 +19,11 @@ class CYH_NET_API UUI_NameEdit : public UUserWidget
 protected:
 	virtual void NativeConstruct() override;
 
+	virtual void NativeDestruct() override;
+
 private:
 	UFUNCTION()
-	void NameCommited(const FText& Text, ETextCommit::Type CommitMethod);
+	void NameCommitted(const FText& Text, ETextCommit::Type CommitMethod);
 
 protected:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget))

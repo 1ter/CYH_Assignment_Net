@@ -14,15 +14,7 @@ void ANetGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	
 	DOREPLIFETIME(ANetGameState, RemainingTime);
 	DOREPLIFETIME(ANetGameState, bGameEnded);
-}
-
-void ANetGameState::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (HasAuthority())
-	{
-	}
+	DOREPLIFETIME(ANetGameState, WinnerName);
 }
 
 void ANetGameState::OnRep_RemainingTime()

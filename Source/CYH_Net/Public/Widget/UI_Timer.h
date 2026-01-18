@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "UI_Result.generated.h"
+#include "UI_Timer.generated.h"
 
 class UTextBlock;
 class ANetGameState;
@@ -12,17 +12,15 @@ class ANetGameState;
  * 
  */
 UCLASS()
-class CYH_NET_API UUI_Result : public UUserWidget
+class CYH_NET_API UUI_Timer : public UUserWidget
 {
 	GENERATED_BODY()
-
+	
 public:
-	UFUNCTION()
-	void UpdateWinnerName(const FString& InName);
+	void BindGameState(ANetGameState* InGameState);
 
 	UFUNCTION()
-	void OnGameEnded();
-
+	void UpdateTime(int32 InTime);
 
 protected:
 	virtual void NativeConstruct() override;
@@ -31,9 +29,9 @@ protected:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> WinnerName = nullptr;
+	TObjectPtr<UTextBlock> Timer = nullptr;
 
 	UPROPERTY()
 	TWeakObjectPtr<ANetGameState> NetGameState = nullptr;
-	
+
 };

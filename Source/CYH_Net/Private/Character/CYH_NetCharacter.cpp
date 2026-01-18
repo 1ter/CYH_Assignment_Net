@@ -12,7 +12,7 @@
 #include "InputActionValue.h"
 #include "State/NetPlayerState.h"
 #include "Components/WidgetComponent.h"
-#include "Widget/UI_DataLine.h"
+#include "Widget/UI_NameTag.h"
 #include "Actor/PickupActor.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -65,17 +65,25 @@ ACYH_NetCharacter::ACYH_NetCharacter()
 void ACYH_NetCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (UUserWidget* userWidget = NameWidgetComponent->GetWidget())
-	{
-		NameWidget = Cast<UUI_DataLine>(userWidget);
-		if (NameWidget.IsValid())
-		{
-			NameWidget->SetLabel(FText::FromString(TEXT("-")));
-		}
-	}
 }
 
+//void ACYH_NetCharacter::Tick(float DeltaSeconds)
+//{
+//	Super::Tick(DeltaSeconds);
+//
+//	if (IsLocallyControlled())
+//	{
+//		if (NameWidgetComponent)
+//		{
+//			if (APlayerController* pc = GetWorld()->GetFirstPlayerController())
+//			{
+//				FVector cameraFoward = pc->PlayerCameraManager->GetCameraRotation().Vector();
+//				FVector widgetFoward = cameraFoward * -1;
+//				NameWidgetComponent->SetWorldRotation(widgetFoward.Rotation());
+//			}
+//		}
+//	}
+//}
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -83,6 +91,11 @@ void ACYH_NetCharacter::BeginPlay()
 void ACYH_NetCharacter::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
+
+	if (!IsLocallyControlled())	{ return; }
+
+	UE_LOG(LogTemp, Warning, TEXT("[CHAR] PS Changed -> %s"),
+		*GetNameSafe(GetPlayerState()));
 
 	// Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
@@ -110,10 +123,6 @@ void ACYH_NetCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACYH_NetCharacter::Look);
 
 		EnhancedInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &ACYH_NetCharacter::OnTryInteraction);
-	}
-	else
-	{
-		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
 
@@ -160,24 +169,18 @@ void ACYH_NetCharacter::OnTryInteraction(const FInputActionValue& Value)
 
 void ACYH_NetCharacter::Server_AddCount_Implementation(int32 InCount)
 {
-	if (HasAuthority())
-	{
 		if (ANetPlayerState* playerState = GetPlayerState<ANetPlayerState>())
 		{
 			playerState->AddCount(InCount);
 		}
-	}
 }
 
 void ACYH_NetCharacter::Server_SetPlayerName_Implementation(const FString& InName)
 {
-	if (HasAuthority())
-	{
 		if (ANetPlayerState* playerState = GetPlayerState<ANetPlayerState>())
 		{
 			playerState->SetMyName(InName);
 		}
-	}
 }
 
 void ACYH_NetCharacter::Server_TryInteract_Implementation(AActor* InInteractionActor)
@@ -188,14 +191,6 @@ void ACYH_NetCharacter::Server_TryInteract_Implementation(AActor* InInteractionA
 		{
 			IInteractionInterface::Execute_OnInteraction(InInteractionActor, this);
 		}
-	}
-}
-
-void ACYH_NetCharacter::UpdateNamePlate(const FString& InName)
-{
-	if (NameWidget.IsValid())
-	{
-		NameWidget->SetLabel(FText::FromString(InName));
 	}
 }
 
@@ -241,14 +236,9 @@ void ACYH_NetCharacter::TryInteraction_Implementation()
 {
 	if (IsLocallyControlled())
 	{
-		if (APlayerController* pc = Cast<APlayerController>(GetController()))
-		{
-			FVector cameraLocation;
-			FRotator cameraRotation;
-			pc->GetPlayerViewPoint(cameraLocation, cameraRotation);
-
-			FVector start = cameraLocation;
-			FVector end = start + (cameraRotation.Vector() * Distance);
+		FVector start = GetActorLocation() + FVector(0, 0, 0.f);
+		FVector forward = GetActorForwardVector();
+		FVector end = start + (forward * Distance);
 
 			FHitResult hit;
 			FCollisionQueryParams params;
@@ -277,7 +267,7 @@ void ACYH_NetCharacter::TryInteraction_Implementation()
 					}
 				}
 			}
-		}
+	
 	}
 }
 

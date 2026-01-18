@@ -28,6 +28,8 @@ public:
 	inline FString GetMyName() const { return MyName; }
 
 protected:
+	virtual void BeginPlay() override;
+
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
 
 	UFUNCTION()
@@ -37,13 +39,15 @@ protected:
 	void OnRep_MyName();
 
 public:
+	UPROPERTY()
 	FOnCountChanged OnCountChanged;
+	UPROPERTY()
 	FOnNameChanged OnNameChanged;
 
 private:
-	UPROPERTY(ReplicatedUsing = OnRep_PickupCount)
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_PickupCount)
 	int32 PickupCount = 0;
 
-	UPROPERTY(ReplicatedUsing = OnRep_MyName)
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_MyName)
 	FString MyName;
 };

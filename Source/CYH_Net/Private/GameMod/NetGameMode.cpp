@@ -74,8 +74,6 @@ void ANetGameMode::CheckGameOver()
 		{
 			NetGameState->SetWinnerName(winner->GetMyName());
 		}
-
-		EndMatch();
 	}
 }
 
@@ -83,6 +81,7 @@ ANetPlayerState* ANetGameMode::GetWinnerPlayerState(bool& bOutDraw)
 {
 	bOutDraw = false;
 	ANetPlayerState* winner = nullptr;
+	int32 bestCount = -1;
 
 	if (!NetGameState.IsValid())
 	{
@@ -95,12 +94,16 @@ ANetPlayerState* ANetGameMode::GetWinnerPlayerState(bool& bOutDraw)
 		{
 			if (ANetPlayerState* netPlayerState = Cast<ANetPlayerState>(playerState))
 			{
-				if (!winner || netPlayerState->GetPickupCount() > winner->GetPickupCount())
+				int32 currentCount = netPlayerState->GetPickupCount(); 
+
+				if (currentCount > bestCount)
 				{
 					winner = netPlayerState;
+					bestCount = currentCount;
+
 					bOutDraw = false;
 				}
-				else if (netPlayerState != winner && (netPlayerState->GetPickupCount() == winner->GetPickupCount()))
+				else if (bestCount == currentCount)
 				{
 					bOutDraw = true;
 				}

@@ -8,13 +8,19 @@
 
 class UUserWidget;
 class UUI_Main;
+class UUI_PickupCount;
+class UUI_Timer;
 /**
- * 
+ *
  */
 UCLASS()
 class CYH_NET_API AMainHUD : public AHUD
 {
 	GENERATED_BODY()
+
+public:
+	UUI_PickupCount* GetPickupCountWidget();
+	UUI_Timer* GetTimerWidget();
 
 protected:
 	virtual void BeginPlay() override;
@@ -24,5 +30,5 @@ protected:
 	TSubclassOf<UUserWidget> MainHUDclass = nullptr;
 
 	UPROPERTY()
-	TWeakObjectPtr<UUserWidget> MainWidget = nullptr;
+	TWeakObjectPtr<UUI_Main> MainWidget = nullptr;
 };

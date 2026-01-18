@@ -4,36 +4,34 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "UI_Result.generated.h"
+#include "UI_PickupCount.generated.h"
 
 class UTextBlock;
-class ANetGameState;
+class ANetPlayerState;
+
 /**
  * 
  */
 UCLASS()
-class CYH_NET_API UUI_Result : public UUserWidget
+class CYH_NET_API UUI_PickupCount : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	UFUNCTION()
-	void UpdateWinnerName(const FString& InName);
+	void BindPlayerState(ANetPlayerState* InPlayerState);
 
 	UFUNCTION()
-	void OnGameEnded();
-
+	void UpdatePickupCount(int32 InCount);
 
 protected:
 	virtual void NativeConstruct() override;
 
 	virtual void NativeDestruct() override;
-
+	
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> WinnerName = nullptr;
+	TObjectPtr<UTextBlock> PickupCount = nullptr;
 
 	UPROPERTY()
-	TWeakObjectPtr<ANetGameState> NetGameState = nullptr;
-	
+	TWeakObjectPtr<ANetPlayerState> NetPlayerState = nullptr;
 };

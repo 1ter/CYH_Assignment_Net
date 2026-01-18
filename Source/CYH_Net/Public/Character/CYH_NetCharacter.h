@@ -13,7 +13,7 @@ class UCameraComponent;
 class UWidgetComponent;
 class UInputMappingContext;
 class UInputAction;
-class UUI_DataLine;
+class UUI_NameTag;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -59,14 +59,13 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_TryInteract(AActor* InInteractionActor);
 
-	void UpdateNamePlate(const FString& InName);
-
 	virtual void AddInteractionTarget_Implementation(AActor* InTarget) override;
 	virtual void ClearInteractionTarget_Implementation(AActor* InTarget) override;
 	virtual void TryInteraction_Implementation() override;
 
 protected:
 	virtual void BeginPlay() override;
+	//virtual void Tick(float DeltaSeconds) override;
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -93,13 +92,10 @@ protected:
 	TObjectPtr<UWidgetComponent> NameWidgetComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	TWeakObjectPtr<UUI_DataLine> NameWidget = nullptr;
-
-	UPROPERTY(EditAnywhere)
 	TObjectPtr<UInputAction> IA_Interact = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	float Distance = 100.0f;
+	float Distance = 200.0f;
 
 private:
 	TArray<TWeakObjectPtr<AActor>> InteractionTargets;

@@ -9,10 +9,23 @@ void UUI_NameEdit::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	NameInput->OnTextCommitted.AddDynamic(this, &UUI_NameEdit::NameCommited);
+	if (NameInput)
+	{
+		NameInput->OnTextCommitted.AddDynamic(this, &UUI_NameEdit::NameCommitted);
+	}
 }
 
-void UUI_NameEdit::NameCommited(const FText& Text, ETextCommit::Type CommitMethod)
+void UUI_NameEdit::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if (NameInput)
+	{
+		NameInput->OnTextCommitted.RemoveDynamic(this, &UUI_NameEdit::NameCommitted);
+	}
+}
+
+void UUI_NameEdit::NameCommitted(const FText& Text, ETextCommit::Type CommitMethod)
 {
 	if (CommitMethod == ETextCommit::OnEnter)
 	{
@@ -22,9 +35,9 @@ void UUI_NameEdit::NameCommited(const FText& Text, ETextCommit::Type CommitMetho
 			{
 				PlayerCharacter = Cast<ACYH_NetCharacter>(pc->GetPawn());
 			}
-			
+
 		}
-		
+
 		if (PlayerCharacter.IsValid())
 		{
 			PlayerCharacter->Server_SetPlayerName(Text.ToString());
