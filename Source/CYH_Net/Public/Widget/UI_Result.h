@@ -17,11 +17,9 @@ class CYH_NET_API UUI_Result : public UUserWidget
 	GENERATED_BODY()
 
 public:
-
 	void UpdateWinnerName(const FString& InName);
 
 	void ShowResult(bool bShow);
-
 
 protected:
 	virtual void NativeConstruct() override;

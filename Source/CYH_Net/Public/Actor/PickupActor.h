@@ -24,7 +24,6 @@ public:
 
 	inline UWidgetComponent* GetWidgetComponent() { return WidgetComponent; }
 
-
 protected:
 	virtual void BeginPlay() override;
 

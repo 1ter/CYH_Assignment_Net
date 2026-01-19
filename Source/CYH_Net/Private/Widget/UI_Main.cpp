@@ -44,7 +44,6 @@ void UUI_Main::UpdateTime(int32 InTime)
 	}
 }
 
-
 void UUI_Main::UpdateWinnerName(const FString& InName)
 {
 	if (ResultWidget)

@@ -5,17 +5,19 @@
 #include "State/NetGameState.h"
 #include "State/NetPlayerState.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Actor/PickupActor.h"
 #include "Actor/SpawnBox.h"
-
-ANetGameMode::ANetGameMode()
-{
-
-}
+#include "Components/BoxComponent.h"
 
 void ANetGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (AActor* foundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ASpawnBox::StaticClass()))
+	{
+		SpawnBox = Cast<ASpawnBox>(foundActor);
+	}
 
 	NetGameState = GetGameState<ANetGameState>();
 	if (NetGameState.IsValid())
@@ -96,33 +98,6 @@ void ANetGameMode::CheckGameOver()
 	}
 }
 
-void ANetGameMode::SpawnPickupItem()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Spawn!")); 
-	if (HasAuthority())
-	{
-		if (PickupItemClass && SpawnBox)
-		{
-			if (SpawnBox = SpawnBox->FindComponentByClass<UBoxComponent>)
-
-			FVector spawnLocation = UKismetMathLibrary::RandomPointInBoundingBox(
-				SpawnBox->GetComponentLocation(),
-				SpawnBox->GetScaledBoxExtent()
-			);
-
-			FActorSpawnParameters spawnpParams;
-			spawnpParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-			GetWorld()->SpawnActor<APickupActor>(
-				PickupItemClass,
-				spawnLocation,
-				FRotator::ZeroRotator,
-				spawnpParams
-			);
-		}
-	}
-}
-
 ANetPlayerState* ANetGameMode::GetWinnerPlayerState(bool& bOutDraw)
 {
 	bOutDraw = false;
@@ -160,3 +135,31 @@ ANetPlayerState* ANetGameMode::GetWinnerPlayerState(bool& bOutDraw)
 	return bOutDraw ? nullptr : winner;
 }
 
+void ANetGameMode::SpawnPickupItem()
+{
+	if (HasAuthority())
+	{
+		if (PickupItemClass && SpawnBox)
+		{
+			if (UBoxComponent* boxComp = SpawnBox->FindComponentByClass<UBoxComponent>())
+			{
+				FVector spawnLocation = UKismetMathLibrary::RandomPointInBoundingBox(
+					boxComp->GetComponentLocation(),
+					boxComp->GetScaledBoxExtent()
+				);
+
+				FActorSpawnParameters spawnpParams;
+				spawnpParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+				APickupActor* spawned = GetWorld()->SpawnActor<APickupActor>(
+					PickupItemClass,
+					spawnLocation,
+					FRotator::ZeroRotator,
+					spawnpParams
+				);
+
+				UE_LOG(LogTemp, Warning, TEXT("스폰!"));
+			}
+		}
+	}
+}

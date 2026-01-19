@@ -17,9 +17,6 @@ class CYH_NET_API ANetGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
-public:
-	ANetGameMode();
-
 protected:
 	virtual void BeginPlay() override;
 
@@ -48,7 +45,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> PickupItemClass = nullptr;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ASpawnBox> SpawnBox = nullptr;
 
 	TWeakObjectPtr<ANetGameState> NetGameState = nullptr;

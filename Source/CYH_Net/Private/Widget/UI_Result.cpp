@@ -18,7 +18,6 @@ void UUI_Result::NativeConstruct()
 		{
 			UpdateWinnerName(gamestate->GetWinnerName());
 
-
 			ShowResult(gamestate->GetIsGameEnded());
 		}
 	}

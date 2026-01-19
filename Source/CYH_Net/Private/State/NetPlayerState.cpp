@@ -20,11 +20,6 @@ void ANetPlayerState::AddCount(int32 InCount)
 	{
 		PickupCount += InCount;
 
-
-		UE_LOG(LogTemp, Warning, TEXT("[SERVER] AddCount | PS=%s | Value=%d"),
-			*GetNameSafe(this),
-			PickupCount);
-
 		OnRep_PickupCount();
 	}
 }
@@ -48,12 +43,12 @@ void ANetPlayerState::SetMyName(const FString& InName)
 
 void ANetPlayerState::UpdateHUD()
 {
-	APlayerController* pc = GetWorld()->GetFirstPlayerController();
-	if (pc && pc->GetHUD<AMainHUD>())
+	APlayerController* playerController = GetWorld()->GetFirstPlayerController();
+	if (playerController && playerController->GetHUD<AMainHUD>())
 	{
-		if (AMainHUD* mainHUD = pc->GetHUD<AMainHUD>())
+		if (AMainHUD* mainHUD = playerController->GetHUD<AMainHUD>())
 		{
-			if (this == pc->PlayerState)
+			if (this == playerController->PlayerState)
 			{
 				mainHUD->UpdateMyInfo(GetMyName(), PickupCount);
 			}

@@ -102,8 +102,7 @@ void ACYH_NetCharacter::NotifyControllerChanged()
 
 	if (!IsLocallyControlled()) { return; }
 
-	UE_LOG(LogTemp, Warning, TEXT("[CHAR] PS Changed -> %s"),
-		*GetNameSafe(GetPlayerState()));
+	UE_LOG(LogTemp, Warning, TEXT("스테이트 타이밍 변경 : %s"), *GetNameSafe(GetPlayerState()));
 
 	// Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))

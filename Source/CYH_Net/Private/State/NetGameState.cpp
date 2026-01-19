@@ -9,9 +9,9 @@ void ANetGameState::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (APlayerController* pc = GetWorld()->GetFirstPlayerController())
+	if (APlayerController* playerController = GetWorld()->GetFirstPlayerController())
 	{
-		MainHUD = pc->GetHUD<AMainHUD>();
+		MainHUD = playerController->GetHUD<AMainHUD>();
 	}
 }
 

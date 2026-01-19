@@ -10,9 +10,9 @@ void AMainHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (APlayerController* pc = GetOwningPlayerController())
+	if (APlayerController* playerController = GetOwningPlayerController())
 	{
-		if (pc && pc->IsLocalController())
+		if (playerController && playerController->IsLocalController())
 		{
 			if (MainHUDclass)
 			{

@@ -21,7 +21,4 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UBoxComponent> SpawnBox = nullptr;
-
-public:	
-
 };

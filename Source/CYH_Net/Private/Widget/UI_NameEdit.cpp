@@ -31,11 +31,12 @@ void UUI_NameEdit::NameCommitted(const FText& Text, ETextCommit::Type CommitMeth
 	{
 		if (!PlayerCharacter.IsValid())
 		{
-			if (APlayerController* pc = GetOwningPlayer())
+			if (APlayerController* playerController = GetOwningPlayer())
 			{
-				PlayerCharacter = Cast<ACYH_NetCharacter>(pc->GetPawn());
+				PlayerCharacter = Cast<ACYH_NetCharacter>(playerController->GetPawn());
 			}
 		}
+
 		if (PlayerCharacter.IsValid())
 		{
 			PlayerCharacter->Server_SetPlayerName(Text.ToString());
