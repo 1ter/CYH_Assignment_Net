@@ -37,5 +37,14 @@ protected:
 	TSubclassOf<UUserWidget> MainHUDclass = nullptr;
 
 	UPROPERTY()
+	TWeakObjectPtr<UUserWidget> CurrentWidget = nullptr;
+
+	UPROPERTY()
 	TWeakObjectPtr<UUI_Main> MainWidget = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> GameLobbyClass = nullptr;
+	
+	UPROPERTY()
+	TWeakObjectPtr<UUserWidget> GameLobbyWidget = nullptr;
 };

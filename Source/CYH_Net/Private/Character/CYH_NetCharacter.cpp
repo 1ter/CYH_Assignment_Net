@@ -166,6 +166,8 @@ void ACYH_NetCharacter::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+		UE_LOG(LogTemp, Warning, TEXT("Look: %f %f"), LookAxisVector.X, LookAxisVector.Y);
+
 	}
 }
 

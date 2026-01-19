@@ -16,10 +16,21 @@ void AMainHUD::BeginPlay()
 		{
 			if (MainHUDclass)
 			{
-				MainWidget = CreateWidget<UUI_Main>(GetOwningPlayerController(), MainHUDclass);
-				if (MainWidget.IsValid())
+				CurrentWidget = CreateWidget<UUserWidget>(playerController, MainHUDclass);
+				if (CurrentWidget.IsValid())
 				{
-					MainWidget->AddToViewport();
+					CurrentWidget->AddToViewport();
+
+					MainWidget = Cast<UUI_Main>(CurrentWidget);
+				}
+			}
+
+			if (GameLobbyClass)
+			{
+				GameLobbyWidget = CreateWidget<UUserWidget>(playerController, GameLobbyClass);
+				if (GameLobbyWidget.IsValid())
+				{
+					GameLobbyWidget->AddToViewport(1);
 				}
 			}
 		}

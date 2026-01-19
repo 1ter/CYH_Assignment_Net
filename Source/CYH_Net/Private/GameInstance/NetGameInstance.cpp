@@ -54,7 +54,7 @@ void UNetGameInstance::DisConnectServer()
 	FString MapName;
 	if (!MainLevelAsset.IsNull())
 	{
-		MapName = ServerLevelAsset.GetLongPackageName();
+		MapName = MainLevelAsset.GetLongPackageName();
 	}
 	else
 	{
