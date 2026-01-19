@@ -2,10 +2,7 @@
 
 
 #include "Character/NetPlayerController.h"
+#include "EnhancedInputComponent.h"
 
-void ANetPlayerController::BeginPlay()
-{
-    Super::BeginPlay();
 
-    bShowMouseCursor = true;
-}
+

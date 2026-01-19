@@ -130,6 +130,8 @@ void ACYH_NetCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACYH_NetCharacter::Look);
 
 		EnhancedInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &ACYH_NetCharacter::OnTryInteraction);
+		EnhancedInputComponent->BindAction(IA_Cursor, ETriggerEvent::Started, this, &ACYH_NetCharacter::OnCursor);
+
 	}
 }
 
@@ -166,8 +168,23 @@ void ACYH_NetCharacter::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
-		UE_LOG(LogTemp, Warning, TEXT("Look: %f %f"), LookAxisVector.X, LookAxisVector.Y);
+	}
+}
 
+void ACYH_NetCharacter::OnCursor()
+{
+	APlayerController* playerController = Cast<APlayerController>(GetController());
+
+	bCursorOn = !bCursorOn;
+	playerController->bShowMouseCursor = bCursorOn;
+
+	if (bCursorOn)
+	{
+		playerController->SetInputMode(FInputModeGameAndUI());
+	}
+	else
+	{
+		playerController->SetInputMode(FInputModeGameOnly());
 	}
 }
 

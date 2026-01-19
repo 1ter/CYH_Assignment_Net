@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "NetPlayerController.generated.h"
 
+class UInputAction;
 /**
  * 
  */
@@ -14,7 +15,5 @@ class CYH_NET_API ANetPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
-protected:
-	virtual void BeginPlay() override;
 
 };

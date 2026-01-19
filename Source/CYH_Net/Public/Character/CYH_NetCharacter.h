@@ -70,6 +70,8 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	void OnCursor();
+
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
@@ -93,13 +95,18 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UWidgetComponent> NameWidgetComponent = nullptr;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UInputAction> IA_Interact = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UInputAction> IA_Cursor = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float Distance = 200.0f;
 
 private:
 	TArray<TWeakObjectPtr<AActor>> InteractionTargets;
+
+	bool bCursorOn = false;
 };
 
