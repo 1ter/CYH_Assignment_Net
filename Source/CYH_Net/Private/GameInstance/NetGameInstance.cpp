@@ -3,6 +3,7 @@
 
 #include "GameInstance/NetGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/GameUserSettings.h"
 
 UNetGameInstance::UNetGameInstance()
 {
@@ -12,6 +13,13 @@ UNetGameInstance::UNetGameInstance()
 void UNetGameInstance::Init()
 {
 	Super::Init();
+
+	if (UGameUserSettings* Settings = UGameUserSettings::GetGameUserSettings())
+	{
+		Settings->SetScreenResolution(FIntPoint(1280, 720));
+		Settings->SetFullscreenMode(EWindowMode::Windowed);
+		Settings->ApplySettings(true);
+	}
 }
 
 void UNetGameInstance::CreateServer()
