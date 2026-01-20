@@ -9,6 +9,24 @@
 #include "Actor/PickupActor.h"
 #include "Actor/SpawnBox.h"
 #include "Components/BoxComponent.h"
+#include "Character/CYH_NetCharacter.h"
+
+ANetGameMode::ANetGameMode()
+{
+}
+
+void ANetGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	UE_LOG(LogTemp, Error, TEXT("Sever PostLogin: %s"), *GetNameSafe(NewPlayer));
+}
+
+void ANetGameMode::RestartPlayer(AController* NewPlayer)
+{
+	UE_LOG(LogTemp, Error, TEXT("Sever RestartPlayer: %s"), *GetNameSafe(NewPlayer));
+	Super::RestartPlayer(NewPlayer);
+}
 
 void ANetGameMode::BeginPlay()
 {

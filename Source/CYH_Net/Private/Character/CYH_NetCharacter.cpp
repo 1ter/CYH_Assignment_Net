@@ -84,7 +84,7 @@ void ACYH_NetCharacter::Tick(float DeltaSeconds)
 
 	if (NameWidgetComponent)
 	{
-		if (APlayerController* pc = GetWorld()->GetFirstPlayerController())
+		if (APlayerController* pc = Cast<APlayerController>(GetController()))
 		{
 			FVector cameraFoward = pc->PlayerCameraManager->GetCameraRotation().Vector();
 			FVector widgetFoward = cameraFoward * -1;

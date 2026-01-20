@@ -39,7 +39,7 @@ void UNetGameInstance::JoinServer(FString IPAddress)
 	{
 		IPAddress = ServerIP;
 	}
-	
+
 	if (UWorld* world = GetWorld())
 	{
 		if (APlayerController* playerController = UGameplayStatics::GetPlayerController(world, 0))

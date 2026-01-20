@@ -18,6 +18,11 @@ class CYH_NET_API ANetGameMode : public AGameMode
 	GENERATED_BODY()
 
 protected:
+	ANetGameMode();
+
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual void RestartPlayer(AController* NewPlayer) override;
+
 	virtual void BeginPlay() override;
 
 	void StartGameTimer();
